@@ -48,26 +48,31 @@ garpike and stingray are also present.'''
 uzivatel = input("username:")
 heslo = input("password:")
 print(separator)
-if uzivatel in data_uzivatel and heslo in data_uzivatel[uzivatel]:
+if uzivatel in data_uzivatel and heslo == data_uzivatel[uzivatel]:
     print(f"""
 Welcome to the app, {uzivatel}
 We have 3 texts to be analyzed.
 """)
+elif uzivatel not in data_uzivatel:
+    print("Wrong username, terminating the program..")
+    exit()
+elif uzivatel in data_uzivatel and heslo != data_uzivatel[uzivatel]:
+    print("Wrong password, terminating the program..")
+    exit()
 else:
     print("unregistered user, terminating the program..")
     exit()
 print(separator)
 # vybrání typů textu mezi třemi možnostmi
-uziv_typ_textu = (input("Enter a number btw. 1 and 3 to select:"))
-if not uziv_typ_textu.isdigit():
+uziv_typ_textu = int((input("Enter a number btw. 1 and 3 to select:")))
+if not str(uziv_typ_textu).isdigit():
     print("wrong type of input -> must be number, terminating the program..")
     exit()
-elif not uziv_typ_textu in range(1,3):
+elif not uziv_typ_textu in range(1,len(TEXTS)):
     print("wrong value of number, terminating the program..")
     exit()
-typ_textu = uziv_typ_textu -1
 
-reseny_text = TEXTS[typ_textu]
+reseny_text = TEXTS[uziv_typ_textu -1]
 
 # STATISTIKY
 # počet slov
@@ -77,45 +82,49 @@ for slovo in split_textu:
     ocisteny_text.append(slovo.strip(",.!?;")) 
 print(f"There are {len(ocisteny_text)} words in the selected text")
 
-# počet slov začínajících velkým písmenem
+
 pocet_slov_s_vemlkym_pismenem = 0
+pocet_slov_s_vemlkymi_pismeneny = 0
+pocet_slov_s_malimy_pismeneny = 0
+pocet_cisel = 0
+suma_cisel = 0
+
+#pozbirání dat sloupcového grafu
+suma_delek_slov = {}
 
 for slovo in ocisteny_text:
+    # počet slov začínajících velkým písmenem
     if slovo[0].isupper() and slovo.isalpha():
         pocet_slov_s_vemlkym_pismenem += 1
 
-print(f"There are {pocet_slov_s_vemlkym_pismenem} titlecase words.")    
-
-# počet slov psaných velkými písmeny,
-pocet_slov_s_vemlkymi_pismeneny = 0
-for slovo in ocisteny_text:
+    # počet slov psaných velkými písmeny,
     if slovo.isupper() and slovo.isalpha():
-        pocet_slov_s_vemlkymi_pismeneny += 1
-
-print(f"There are {pocet_slov_s_vemlkymi_pismeneny} uppercase words.")
-
-# počet slov psaných malými písmeny,
-pocet_slov_s_malimy_pismeneny = 0
-for slovo in ocisteny_text:
+            pocet_slov_s_vemlkymi_pismeneny += 1
+    
+    # počet slov psaných malými písmeny,
     if slovo.islower() and slovo.isalpha():
-        pocet_slov_s_malimy_pismeneny += 1
+            pocet_slov_s_malimy_pismeneny += 1
 
+    # počet čísel (ne cifer)
+    if slovo.isdigit():
+        pocet_cisel += 1   
+
+    # sumu všech čísel (ne cifer) v textu.
+    if slovo.isdigit():
+            suma_cisel += int(slovo)
+
+    #pozbirání dat sloupcového grafu
+    if len(slovo) not in suma_delek_slov:
+        suma_delek_slov[len(slovo)]=1
+    elif len(slovo) in suma_delek_slov:
+        suma_delek_slov[len(slovo)]+=1            
+
+print(f"There are {pocet_slov_s_vemlkym_pismenem} titlecase words.")    
+print(f"There are {pocet_slov_s_vemlkymi_pismeneny} uppercase words.")
 print(f"There are {pocet_slov_s_malimy_pismeneny} lowercase words.")
-
-# počet čísel (ne cifer)
-pocet_cisel = 0
-for slovo in ocisteny_text:
-    if slovo.isdigit():
-        pocet_cisel += 1
-
-print(f"There are {pocet_cisel} numeric strings.")
-
-# sumu všech čísel (ne cifer) v textu.
-suma_cisel = 0
-for slovo in ocisteny_text:
-    if slovo.isdigit():
-        suma_cisel += int(slovo)
+print(f"There are {pocet_cisel} numeric strings.") 
 print(f"The sum of all the numbers {suma_cisel}")
+
 
 #KONEC STATISTIK
 print(separator)
@@ -127,13 +136,7 @@ cetnost_nadpis = "NR."
 print(delka_nadpis, hvezdicky, cetnost_nadpis, sep="|")
 print(separator)
 
-#pozbirání dat sloupcového grafu
-suma_delek_slov = {}
-for slovo in ocisteny_text:
-    if len(slovo) not in suma_delek_slov:
-        suma_delek_slov[len(slovo)]=1
-    elif len(slovo) in suma_delek_slov:
-        suma_delek_slov[len(slovo)]+=1
+
 #generování sloupcovýho grafu
 for delka in sorted(suma_delek_slov):
     
